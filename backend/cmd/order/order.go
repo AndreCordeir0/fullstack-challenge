@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/AndreCordeir0/fullstack-challenge/database"
-	"github.com/AndreCordeir0/fullstack-challenge/internal/pizza"
+	"github.com/AndreCordeir0/fullstack-challenge/backend/cmd/pizza"
+	"github.com/AndreCordeir0/fullstack-challenge/backend/database"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,7 +29,7 @@ func Create(c *gin.Context) {
 	}
 	defer db.Close()
 	defer tx.Rollback()
-	result, txError := tx.Exec("INSERT INTO ORDER (id_pizza, quantity) VALUES (?, ?)", order.IdPizza, order.Quantity)
+	result, txError := tx.Exec("INSERT INTO ORDER_PIZZA (id_pizza, quantity) VALUES (?, ?)", order.IdPizza, order.Quantity)
 	if txError != nil {
 		//TODO
 		c.JSON(500, "")

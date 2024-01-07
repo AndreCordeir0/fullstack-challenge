@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/AndreCordeir0/fullstack-challenge/internal/order"
-	"github.com/AndreCordeir0/fullstack-challenge/internal/pizza"
+	"github.com/AndreCordeir0/fullstack-challenge/backend/cmd/order"
+	"github.com/AndreCordeir0/fullstack-challenge/backend/cmd/pizza"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,4 +12,6 @@ func main() {
 	r.GET("/api/pizzas", pizza.Get)
 	r.GET("/api/orders", order.Get)
 	r.GET("/api/orders/{id}", order.GetById)
+
+	r.Run(":8080")
 }
