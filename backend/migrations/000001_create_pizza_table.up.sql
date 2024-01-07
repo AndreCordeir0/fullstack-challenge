@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS PIZZA(
+   id serial PRIMARY KEY,
+   name VARCHAR(255) NOT NULL,
+   price NUMERIC(20,2) NOT NULL,
+   ingredients JSONB
+);
