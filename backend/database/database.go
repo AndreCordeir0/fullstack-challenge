@@ -18,16 +18,17 @@ type Config struct {
 
 func GetConnection() *sql.DB {
 	config := &Config{
-		Username: os.Getenv("DB_USERNAME"),
+		Username: os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
 		Host:     os.Getenv("DB_HOST"),
 		Database: os.Getenv("DB_DATABASE"),
 	}
-	connectionStr := fmt.Sprintf("postgres://%s:%s@%s/%s", config.Username, config.Password, config.Host, config.Database)
-	sqlDb, err := sql.Open("postgre", connectionStr)
+	connectionStr := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", config.Username, config.Password, config.Host, config.Database)
+	log.Default().Println("Connection", connectionStr)
+	sqlDb, err := sql.Open("postgres", connectionStr)
 
 	if err != nil {
-		log.Fatal("Error connecting in database")
+		log.Fatal("Error connecting in database", err)
 	}
 	log.Default().Println("Connected in database")
 	return sqlDb
