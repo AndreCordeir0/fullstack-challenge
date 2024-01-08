@@ -8,10 +8,11 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.POST("/api/pizza", pizza.Create)
+	r.POST("/api/pizzas", pizza.Create)
 	r.GET("/api/pizzas", pizza.Get)
 	r.GET("/api/orders", order.Get)
 	r.GET("/api/orders/{id}", order.GetById)
+	r.POST("/api/orders", order.Create)
 
 	r.Run(":8080")
 }

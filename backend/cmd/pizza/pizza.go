@@ -8,13 +8,13 @@ import (
 
 	"github.com/AndreCordeir0/fullstack-challenge/backend/database"
 	"github.com/gin-gonic/gin"
-	"github.com/jmoiron/sqlx/types"
 )
 
 type Pizza struct {
-	Name        string         `json:"name"`
-	Price       string         `json:"price"`
-	Ingredients types.JSONText `json:"ingredients"`
+	Id          int           `json:"id"`
+	Name        string        `json:"name"`
+	Price       float64       `json:"price"`
+	Ingredients []Ingredients `json:"ingredients"`
 }
 
 type Ingredients struct {
@@ -35,11 +35,9 @@ func Create(c *gin.Context) {
 	}
 	defer db.Close()
 	defer tx.Rollback()
-	j, _ := json.Marshal(pizza.Ingredients)
-	fmt.Println(string(j))
 	lastInsertId := 0
-
-	txError := tx.QueryRow("INSERT INTO PIZZA (name, price, ingredients) VALUES ($1, $2, $3) RETURNING id", pizza.Name, pizza.Price, pizza.Ingredients).Scan(&lastInsertId)
+	j := pizza.IngredientsMarshal()
+	txError := tx.QueryRow("INSERT INTO PIZZA (name, price, ingredients) VALUES ($1, $2, $3) RETURNING id", pizza.Name, pizza.Price, j).Scan(&lastInsertId)
 	if txError != nil {
 		//TODO
 		log.Default().Println("Erro inserting pizza", txError)
@@ -62,7 +60,37 @@ func Create(c *gin.Context) {
 		"message": "created",
 	})
 }
-
+func (p *Pizza) IngredientsMarshal() []byte {
+	j, _ := json.Marshal(p.Ingredients)
+	return j
+}
 func Get(c *gin.Context) {
+	db := database.GetConnection()
+	tx, err := db.Begin()
 
+	if err != nil {
+		log.Fatal("Error getting transaction", err)
+	}
+	defer db.Close()
+
+	result, queryErr := tx.Query("SELECT * FROM PIZZA")
+	if queryErr != nil {
+		c.AbortWithStatusJSON(500, queryErr.Error())
+	}
+
+	var pizzas []Pizza
+	for result.Next() {
+		var pizza Pizza
+		var ingredientsJSON json.RawMessage
+		if err := result.Scan(&pizza.Id, &pizza.Name, &pizza.Price, &ingredientsJSON); err != nil {
+			c.JSON(500, err.Error())
+			log.Fatal(err)
+		}
+		if err := json.Unmarshal(ingredientsJSON, &pizza.Ingredients); err != nil {
+			log.Fatal(err)
+		}
+		pizzas = append(pizzas, pizza)
+	}
+
+	c.JSON(200, pizzas)
 }
